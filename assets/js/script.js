@@ -3,9 +3,11 @@ var tasks = {};
 var createTask = function(taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item"); // The `$` symbols represent jQuery references. 
+  
   var taskSpan = $("<span>")
     .addClass("badge badge-primary badge-pill")
     .text(taskDate);
+  
   var taskP = $("<p>")
     .addClass("m-1")
     .text(taskText);
@@ -13,6 +15,8 @@ var createTask = function(taskText, taskDate, taskList) {
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
+  // check due date
+  auditTask(taskLi);
 
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
@@ -43,6 +47,27 @@ var loadTasks = function() {
 // Save tasks to local storage
 var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
+// Add yellow highlight when due date is 2 days away and red highlight if due date has passed
+var auditTask = function(taskEl) {
+  // get date from task element
+  var date = $(taskEl).find("span").text().trim();
+
+  // convert to moment object at 5:00pm
+  var time = moment(date, "L").set("hour", 17);
+  
+  // remove any old classes from elements
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+
+  // apply new class to make background red if task is over the due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  }
+  // apply new class to make background yellow is task is near the due date
+  else if (Math.abs(moment().diff(time, "days")) <= 2) {
+    $(taskEl).addClass("list-group-item-warning");
+  }
 };
 
 // Enable drag and drop feature
@@ -113,6 +138,12 @@ $("#trash").droppable({
   }
 });
 
+// Convert text field into a jQuery datepicker
+$("#modalDueDate").datepicker({
+  // set minDate to prevent users from selecting the current day or any days that have passed
+  minDate: 1
+});
+
 // Attach click event for the child elements (`p`) to the parent (ul with class `.list-group`)
 $(".list-group").on("click", "p", function() {
   // get the inner text content of the current element `$(this)
@@ -180,12 +211,21 @@ $(".list-group").on("click", "span", function() {
   // swap out elements
   $(this).replaceWith(dateInput);
 
+  // enable jQuery UI Datepicker
+  dateInput.datepicker({
+    minDate: 1,
+    onClose: function() {
+      // when calender is closed, force a "change" event on the `dateInput`
+      $(this).trigger("change");
+    }
+  });
+
   // automatically focus on new element
   dateInput.trigger("focus");
 });
 
 // Convert inputs back to paragraphs when the user clicks outside (when the element's blur event occurs)
-$(".list-group").on("blur", "input[type='text']", function() {
+$(".list-group").on("change", "input[type='text']", function() {
   // get current text
   var date = $(this)
     .val()
@@ -213,6 +253,9 @@ $(".list-group").on("blur", "input[type='text']", function() {
 
     // replace input with span element
     $(this).replaceWith(taskSpan);
+
+    // pass task's `<li>` element into auditTask() to check new due date
+    auditTask($(taskSpan).closest(".list-group-item"));
 });
 
 // modal was triggered
