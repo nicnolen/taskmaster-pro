@@ -304,4 +304,12 @@ $("#remove-tasks").on("click", function() {
 // load tasks for the first time
 loadTasks();
 
+// setTimeout function to run every 30 minutes ((1000ms * 60s) * 30 minutes)
+setInterval(function() {
+  // loop over every (.each) task with a class of `.list-group-item`(el in the callback function)
+  $(".card .list-group-item").each(function(index, el) {
+    // execute the `auditTask()` function to check the due date of each task
+    auditTask(el);
+  });
+}, (1000 * 60) * 30);
 
