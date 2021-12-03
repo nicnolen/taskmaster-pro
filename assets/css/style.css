@@ -17,3 +17,36 @@ h6 {
 ul.list-group {
   min-height: 130px;
 }
+
+/* GENERAL CLASS SELECTORS */
+/* Style to tell users what areas are dropzones */
+.dropover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Style to tell users they are actively dragging a task */
+.dropover-active {
+  background-color: rgba(0, 0, 0, 0.9)
+}
+
+/* Style the trash zone */
+.bottom-trash {
+  opacity: 0;
+  color: #f1f1f1;
+  font-size: 2.3rem;
+  font-family: "Staatliches", sans-serif;
+  transform: translateY(150px);
+  transition: all .5s ease-in-out;
+  background-color: rgba(234, 0, 39, 0.7);
+}
+
+/* Style the trash zone when an item is dragged */
+.bottom-trash-drag {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Style the trash zone when item is hovered over trash zone */
+.bottom-trash-active {
+  background-color: rgba(234, 0, 39, 1);
+}
